@@ -1,19 +1,14 @@
 package ru.geekbrains.module2.lesson6;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
-
-public class EchoClient {
+public class Client {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
-    private Controller controller;
 
-    public EchoClient(Controller controller) {
-        this.controller = controller;
+    public Client() {
         openConnection();
     }
 
@@ -22,16 +17,23 @@ public class EchoClient {
             socket = new Socket("localhost", 8189);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        String newMessage;
                         while (true) {
-                            final String message = in.readUTF();
-                            if (message.equals("/end")) {
-                                break;
+                            newMessage = in.readUTF();
+                            if (!newMessage.equals("nullMessage")) {
+                                System.out.println("Incoming: " + newMessage);
                             }
-                            controller.addMessage(message);
+                            newMessage = "nullMessage";
+                            if (reader.ready()) {
+                                newMessage = reader.readLine();
+                            }
+                            out.writeUTF(newMessage);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
