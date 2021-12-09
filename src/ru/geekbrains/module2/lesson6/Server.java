@@ -6,10 +6,10 @@ import java.net.Socket;
 
 public class Server {
     public static void main(String[] args) {
-        Socket socket = null;
+        Socket socket;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String newMessage = null;
-        String messageToWrite = null;
+        String newMessage;
+        String messageToWrite;
 
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Waiting for connection...");
@@ -19,15 +19,14 @@ public class Server {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             dataOutputStream.writeUTF("Connected to server");
             while (true) {
-                newMessage = dataInputStream.readUTF();
-                if (!newMessage.equals("nullMessage")) {
+                if (dataInputStream.available() != 0) {
+                    newMessage = dataInputStream.readUTF();
                     System.out.println("Incoming: " + newMessage);
                 }
-                newMessage = "nullMessage";
                 if (reader.ready()) {
-                    newMessage = reader.readLine();
+                    messageToWrite = reader.readLine();
+                    dataOutputStream.writeUTF(messageToWrite);
                 }
-                dataOutputStream.writeUTF(newMessage);
             }
         } catch (IOException e) {
             e.printStackTrace();

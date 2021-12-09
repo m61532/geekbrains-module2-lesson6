@@ -7,6 +7,8 @@ public class Client {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private String newMessage;
+    private String messageToWrite;
 
     public Client() {
         openConnection();
@@ -23,17 +25,15 @@ public class Client {
                 @Override
                 public void run() {
                     try {
-                        String newMessage;
                         while (true) {
-                            newMessage = in.readUTF();
-                            if (!newMessage.equals("nullMessage")) {
-                                System.out.println("Incoming: " + newMessage);
+                            if (in.available() != 0){
+                                newMessage = in.readUTF();
+                                System.out.println("Server: " + newMessage);
                             }
-                            newMessage = "nullMessage";
                             if (reader.ready()) {
-                                newMessage = reader.readLine();
+                                messageToWrite = reader.readLine();
+                                out.writeUTF(messageToWrite);
                             }
-                            out.writeUTF(newMessage);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
